@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getSessionUserId } from "@/lib/session";
 import { prisma } from "@/lib/db";
+import { estimateCaloriesBurned } from "@/lib/calories";
 
 export default async function DashboardPage() {
   const userId = await getSessionUserId();
@@ -57,6 +58,7 @@ export default async function DashboardPage() {
               <li key={w.id} className="px-4 py-3 flex justify-between items-center">
                 <span className="font-medium text-slate-800">{w.type}</span>
                 <span className="text-slate-600">{w.durationMins} min · {w.intensity}</span>
+                <span className="text-sm text-orange-600 font-medium">{estimateCaloriesBurned(w.durationMins, w.intensity)} kcal</span>
                 <span className="text-sm text-slate-400">{new Date(w.date).toLocaleDateString()}</span>
               </li>
             ))}

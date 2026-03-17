@@ -26,6 +26,8 @@ export default async function DashboardLayout({
           <Link href="/dashboard/log" className="text-slate-600 hover:text-slate-900">Log workout</Link>
           <Link href="/dashboard/history" className="text-slate-600 hover:text-slate-900">History</Link>
           <Link href="/dashboard/progress" className="text-slate-600 hover:text-slate-900">Progress</Link>
+          <Link href="/dashboard/calories" className="text-slate-600 hover:text-slate-900">Calories</Link>
+          <Link href="/dashboard/goals" className="text-slate-600 hover:text-slate-900">Goals</Link>
         </div>
         <div className="flex items-center gap-4">
           <span className="text-sm text-slate-600">{user?.name || user?.email}</span>

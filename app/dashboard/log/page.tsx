@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { estimateCaloriesBurned } from "@/lib/calories";
 
 const TYPES = ["Running", "Cycling", "Gym", "Swimming", "Walking", "Other"];
 const INTENSITIES = ["Low", "Medium", "High"];
@@ -15,10 +16,12 @@ export default function LogWorkoutPage() {
   const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [savedBurn, setSavedBurn] = useState<number | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    setSavedBurn(null);
     setLoading(true);
     try {
       const res = await fetch("/api/workouts", {
@@ -37,8 +40,12 @@ export default function LogWorkoutPage() {
         setError(data.error ?? "Failed to save");
         return;
       }
-      router.push("/dashboard");
-      router.refresh();
+      const burn = estimateCaloriesBurned(parseInt(durationMins, 10), intensity);
+      setSavedBurn(burn);
+      setTimeout(() => {
+        router.push("/dashboard");
+        router.refresh();
+      }, 2500);
     } catch {
       setError("Something went wrong");
     } finally {
@@ -106,9 +113,15 @@ export default function LogWorkoutPage() {
           />
         </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
+        {savedBurn !== null && (
+          <div className="rounded-lg bg-primary-50 border border-primary-200 p-3 text-center">
+            <p className="text-primary-800 font-semibold">Workout saved!</p>
+            <p className="text-primary-700">Estimated calories burned: <strong>{savedBurn} kcal</strong></p>
+          </div>
+        )}
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || savedBurn !== null}
           className="w-full py-2 rounded-lg bg-primary-600 text-white font-medium hover:bg-primary-700 disabled:opacity-50"
         >
           {loading ? "Saving…" : "Save workout"}

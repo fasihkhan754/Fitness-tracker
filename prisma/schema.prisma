@@ -11,12 +11,14 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  passwordHash String
-  name      String?
-  createdAt DateTime @default(now())
-  workouts  Workout[]
+  id                 String      @id @default(cuid())
+  email              String      @unique
+  passwordHash       String
+  name               String?
+  dailyCalorieTarget Int?
+  createdAt          DateTime    @default(now())
+  workouts           Workout[]
+  foodEntries        FoodEntry[]
 }
 
 model Workout {
@@ -29,4 +31,15 @@ model Workout {
   date        DateTime
   notes       String?
   createdAt   DateTime @default(now())
+}
+
+model FoodEntry {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  calories  Int
+  mealType  String?  // "Breakfast", "Lunch", "Dinner", "Snack"
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
 }

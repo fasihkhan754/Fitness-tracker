@@ -1,5 +1,6 @@
 import { getSessionUserId } from "@/lib/session";
 import { prisma } from "@/lib/db";
+import { estimateCaloriesBurned } from "@/lib/calories";
 
 export default async function HistoryPage() {
   const userId = await getSessionUserId();
@@ -27,6 +28,7 @@ export default async function HistoryPage() {
                 <th className="px-4 py-3 text-sm font-semibold text-slate-700">Type</th>
                 <th className="px-4 py-3 text-sm font-semibold text-slate-700">Duration</th>
                 <th className="px-4 py-3 text-sm font-semibold text-slate-700">Intensity</th>
+                <th className="px-4 py-3 text-sm font-semibold text-slate-700">Calories (est.)</th>
                 <th className="px-4 py-3 text-sm font-semibold text-slate-700">Notes</th>
               </tr>
             </thead>
@@ -37,6 +39,7 @@ export default async function HistoryPage() {
                   <td className="px-4 py-3 font-medium text-slate-800">{w.type}</td>
                   <td className="px-4 py-3 text-slate-600">{w.durationMins} min</td>
                   <td className="px-4 py-3 text-slate-600">{w.intensity}</td>
+                  <td className="px-4 py-3 text-orange-600 font-medium">{estimateCaloriesBurned(w.durationMins, w.intensity)} kcal</td>
                   <td className="px-4 py-3 text-slate-500 text-sm">{w.notes || "—"}</td>
                 </tr>
               ))}
