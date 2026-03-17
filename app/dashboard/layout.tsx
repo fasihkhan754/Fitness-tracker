@@ -1,38 +1,48 @@
-import { redirect } from "next/navigation";
-import { getSessionUserId } from "@/lib/session";
+import Sidebar from "@/components/SideBar";
+import ProfileMenu from "@/components/ProfileMenu";
 import { prisma } from "@/lib/db";
-import Link from "next/link";
-import { LogoutButton } from "@/components/LogoutButton";
+import { getSessionUserId } from "@/lib/session";
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const userId = await getSessionUserId();
-  if (!userId) redirect("/login");
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { name: true, email: true },
-  });
+  const userId = await getSessionUserId();
+
+  let name = "User";
+
+  if (userId) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { name: true },
+    });
+
+    if (user?.name) {
+      name = user.name;
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <nav className="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          <Link href="/dashboard" className="font-semibold text-primary-700">Fitness Tracker</Link>
-          <Link href="/dashboard" className="text-slate-600 hover:text-slate-900">Dashboard</Link>
-          <Link href="/dashboard/log" className="text-slate-600 hover:text-slate-900">Log workout</Link>
-          <Link href="/dashboard/history" className="text-slate-600 hover:text-slate-900">History</Link>
-          <Link href="/dashboard/progress" className="text-slate-600 hover:text-slate-900">Progress</Link>
+    <div className="flex bg-slate-50 min-h-screen">
+
+      <Sidebar />
+
+      <div className="flex-1 flex flex-col">
+
+        <div className="flex justify-end items-center px-6 py-4 border-b bg-white">
+
+          <ProfileMenu name={name} />
+
         </div>
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-slate-600">{user?.name || user?.email}</span>
-          <LogoutButton />
-        </div>
-      </nav>
-      <main className="p-6 max-w-4xl mx-auto">{children}</main>
+
+        <main className="p-8 flex-1">
+          {children}
+        </main>
+
+      </div>
+
     </div>
   );
 }

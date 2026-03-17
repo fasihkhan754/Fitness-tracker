@@ -1,5 +1,4 @@
 // Prisma schema for Fitness Tracker - OCR A-Level Project
-// SQLite for portability and easy submission
 
 generator client {
   provider = "prisma-client-js"
@@ -11,22 +10,46 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  passwordHash String
-  name      String?
-  createdAt DateTime @default(now())
-  workouts  Workout[]
+  id       String @id @default(cuid())
+  email    String @unique
+  password String @default("")
+  name     String?  
+
+  workouts Workout[]
+  foods    FoodLog[]
+  goals    Goal[]
 }
 
 model Workout {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type        String   // e.g. "Running", "Cycling", "Gym", "Swimming"
-  durationMins Int     // duration in minutes
-  intensity   String   // "Low", "Medium", "High"
-  date        DateTime
-  notes       String?
-  createdAt   DateTime @default(now())
+  id             String   @id @default(cuid())
+  userId         String
+  type           String
+  durationMins   Int
+  intensity      String
+  caloriesBurned Int
+  date           DateTime @default(now())
+  notes          String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model FoodLog {
+  id        String   @id @default(cuid())
+  userId    String
+  foodName  String
+  calories  Int
+  mealType  String
+  date      DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Goal {
+  id        String @id @default(cuid())
+  userId    String
+  target    Int
+  progress  Int
+  reward    String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
