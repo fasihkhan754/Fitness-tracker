@@ -3,6 +3,7 @@ import { getSessionUserId } from "@/lib/session";
 import { prisma } from "@/lib/db";
 
 const VALID_MEAL_TYPES = ["Breakfast", "Lunch", "Dinner", "Snack"];
+// Reasonable upper bound for a single logged food entry.
 const MAX_CALORIES_PER_ENTRY = 5000;
 
 /**
