@@ -1,8 +1,17 @@
-/**
- * Calorie estimation helpers.
- * Uses a simple formula: durationMins * intensity multiplier.
- * Multipliers are rough estimates (cal/min) per intensity level.
- */
+export function calculateCalories(type: string, duration: number) {
+
+  const rates: Record<string, number> = {
+    running: 10,
+    cycling: 8,
+    gym: 6,
+    walking: 4,
+    swimming: 11
+  };
+
+  const rate = rates[type.toLowerCase()] || 5;
+
+  return rate * duration;
+}
 
 const INTENSITY_MULTIPLIERS: Record<string, number> = {
   Low: 3,

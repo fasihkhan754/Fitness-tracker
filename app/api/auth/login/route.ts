@@ -5,33 +5,70 @@ import { setSessionCookie } from "@/lib/session";
 
 /**
  * POST /api/auth/login
- * Verifies credentials and sets session cookie.
+ * Verify credentials and create session
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { email, password } = body;
 
-    if (!email || !password) {
-      return NextResponse.json({ error: "Email and password required" }, { status: 400 });
+    /* ---------- VALIDATE INPUT ---------- */
+
+    if (!email || typeof email !== "string") {
+      return NextResponse.json(
+        { error: "Email is required" },
+        { status: 400 }
+      );
     }
+
+    if (!password || typeof password !== "string") {
+      return NextResponse.json(
+        { error: "Password is required" },
+        { status: 400 }
+      );
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    /* ---------- FIND USER ---------- */
 
     const user = await prisma.user.findUnique({
-      where: { email: email.trim().toLowerCase() },
+      where: { email: normalizedEmail },
     });
+
     if (!user) {
-      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Invalid email or password" },
+        { status: 401 }
+      );
     }
 
-    const valid = await verifyPassword(password, user.passwordHash);
-    if (!valid) {
-      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
+    /* ---------- VERIFY PASSWORD ---------- */
+
+    const passwordValid = await verifyPassword(password, user.password);
+
+    if (!passwordValid) {
+      return NextResponse.json(
+        { error: "Invalid email or password" },
+        { status: 401 }
+      );
     }
+
+    /* ---------- CREATE SESSION ---------- */
 
     setSessionCookie(user.id);
-    return NextResponse.json({ ok: true, userId: user.id });
-  } catch (e) {
-    console.error("Login error:", e);
-    return NextResponse.json({ error: "Login failed" }, { status: 500 });
+
+    return NextResponse.json({
+      ok: true,
+      userId: user.id,
+    });
+
+  } catch (error) {
+    console.error("Login error:", error);
+
+    return NextResponse.json(
+      { error: "Login failed" },
+      { status: 500 }
+    );
   }
 }

@@ -3,6 +3,8 @@ import { getSessionUserId } from "@/lib/session";
 import { prisma } from "@/lib/db";
 
 const VALID_MEAL_TYPES = ["Breakfast", "Lunch", "Dinner", "Snack"];
+// Reasonable upper bound for a single logged food entry.
+const MAX_CALORIES_PER_ENTRY = 5000;
 
 /**
  * GET /api/food
@@ -66,8 +68,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Food name is required" }, { status: 400 });
     }
     const cal = parseInt(String(calories), 10);
-    if (isNaN(cal) || cal < 0 || cal > 5000) {
-      return NextResponse.json({ error: "Calories must be between 0 and 5000" }, { status: 400 });
+    if (isNaN(cal) || cal < 0 || cal > MAX_CALORIES_PER_ENTRY) {
+      return NextResponse.json({ error: `Calories must be between 0 and ${MAX_CALORIES_PER_ENTRY}` }, { status: 400 });
     }
     if (mealType !== undefined && mealType !== null && (typeof mealType !== "string" || !VALID_MEAL_TYPES.includes(mealType))) {
       return NextResponse.json(
